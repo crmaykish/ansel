@@ -1,21 +1,73 @@
-const int L_FORWARD = 3;
-const int L_REVERSE = 5;
-const int R_FORWARD = 6;
-const int R_REVERSE = 9;
+const int R_FORWARD = 3;
+const int R_REVERSE = 5;
+const int L_FORWARD = 6;
+const int L_REVERSE = 9;
+
+// Serial buffer
+const int COMMAND_LENGTH = 16;
+char serial_buffer[COMMAND_LENGTH + 1];
+char serial_buffer_size = 0;
 
 void setup() {
     Serial.begin(115200);
 }
 
 void loop() {
-    left(255);
-    delay(10000);
-    stop();
-    delay(500);
-    right(255);
-    delay(10000);
-    stop();
-    delay(500);
+    read_commands();
+}
+
+void read_commands() {
+    if (Serial.available() > 0) {
+        serial_buffer[serial_buffer_size] = Serial.read();
+
+        if (serial_buffer[serial_buffer_size] == '\r' || serial_buffer[serial_buffer_size] == '\n' || serial_buffer_size == COMMAND_LENGTH) {
+            // Process command
+            char* token = strtok(serial_buffer, ",");
+
+            if (strcmp(token, "d") == 0) {
+                // Drive command: look for two more values
+                char* direction = strtok(NULL, ",");
+                int speed = atoi(strtok(NULL, ","));
+
+                Serial.print("Driving ");
+                Serial.print(direction);
+                Serial.print(" at speed ");
+                Serial.println(speed);
+                drive(direction, speed);
+            }
+            else if (strcmp(token, "stop") == 0) {
+                Serial.println("Stopping");
+                stop();
+            }
+            else {
+                Serial.print("Bad command: ");
+                Serial.println(token);
+            }
+
+            // Clear buffer
+            for (int i = 0; i < serial_buffer_size; i++) {
+                serial_buffer[i] = (byte) 0;
+            }
+            serial_buffer_size = 0;
+        } else {
+            serial_buffer_size++;
+        }
+    }
+}
+
+void drive(char* direction, int speed) {
+    if (strcmp(direction, "left") == 0) {
+        left(speed);
+    }
+    else if (strcmp(direction, "right") == 0) {
+        right(speed);
+    }
+    else if (strcmp(direction, "forward") == 0) {
+        forward(speed);
+    }
+    else if (strcmp(direction, "reverse") == 0) {
+        reverse(speed);
+    }
 }
 
 void forward(int speed) {
