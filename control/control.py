@@ -4,11 +4,11 @@ import time
 import sqlite3
 from threading import Thread
 
-# TODO: Serial handshake to confirm two way communication
-# TODO: Call/response system vs async communication?
-# TODO: Drive board resetting after start? Doesn't work without serial monitor open
-
 sensors = None
+
+# Set up SQLite database
+conn = sqlite3.connect("db/ansel.db")
+c = conn.cursor()
 
 # Send a command to a serial device
 def command(board, command):
@@ -58,9 +58,6 @@ def control_loop():
 
         # 25 updates per second
         time.sleep(0.04)
-
-# Set up SQLite database
-conn = sqlite3.connect('ansel.db')
 
 # Start the sensor board thread
 sensor_thread = Thread(target=sensor_loop)
