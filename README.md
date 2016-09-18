@@ -14,3 +14,5 @@ The two motors get the raw the battery voltage and the rest of the components ar
 
 ## Mechanical
 Ansel sits atop two DC drive motors and two caster wheels. The chassis is a combination of 1/4" plexiglass sheets and 3D printed parts.
+
+![Ansel robot](ansel.jpg)
