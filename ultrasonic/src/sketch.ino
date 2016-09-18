@@ -17,13 +17,13 @@ void setup()
 void loop()
 {
     distances[0] = right.ping_cm();
-    delay(10);
+    delay(2);
     distances[1] = front.ping_cm();
-    delay(10);
+    delay(2);
     distances[2] = left.ping_cm();
-    delay(10);
+    delay(2);
     distances[3] = rear.ping_cm();
-    delay(10);
+    delay(2);
 
     for (int i = 0; i < 4; i++) {
         Serial.print(distances[i]);
