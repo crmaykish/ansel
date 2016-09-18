@@ -93,3 +93,5 @@ ENV/
 .build/
 .holder
 lib/
+
+*.db

@@ -1,6 +1,7 @@
 # Ansel Sensor Board - Colin Maykish - September 2016
 import serial
 import time
+import sqlite3
 from threading import Thread
 
 # TODO: Serial handshake to confirm two way communication
@@ -49,12 +50,17 @@ def control_loop():
             else:
                 # Right has more room then left (or they're the same)
                 command(drive_board, "d,right,190")
+
+                # TODO: room for improvement here
         else:
             # Nothing blocking, move forward
             command(drive_board, "d,forward,255")
 
         # 25 updates per second
         time.sleep(0.04)
+
+# Set up SQLite database
+conn = sqlite3.connect('ansel.db')
 
 # Start the sensor board thread
 sensor_thread = Thread(target=sensor_loop)
