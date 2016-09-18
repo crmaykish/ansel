@@ -2,7 +2,7 @@ import serial
 import time
 
 def command(command):
-    tosend = (command + '\n').encode('ascii');
+    tosend = (command + '\n').encode('ascii')
     ser.write(tosend)
 
 print("Ansel control is active")
@@ -14,11 +14,11 @@ print("Connected to serial")
 
 print("Starting Ansel control loop")
 while True:
-    command("d,forward,150")
-    time.sleep(5);
+    command("d,forward,255")
+    time.sleep(5)
     command("stop,")
     time.sleep(1)
-    command("d,reverse,150")
+    command("d,reverse,255")
     time.sleep(5)
     command("stop, ")
     time.sleep(1)
