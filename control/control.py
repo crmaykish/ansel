@@ -2,6 +2,7 @@
 import serial
 import time
 import sqlite3
+import json
 from threading import Thread
 
 sensors = None
@@ -16,15 +17,21 @@ def command(board, command):
     board.write(tosend)
 
 def sensor_check(direction, distance):
-    return sensors[direction] < distance and sensors[direction] != 0
+    return sensors[direction]['val'] < distance and sensors[direction]['val'] != 0
 
 def sensor_loop():
-    sensor_board = serial.Serial("/dev/ttyUSB1", 115200, timeout=10)
+    sensor_board = serial.Serial("/dev/ttyUSB1", 9600, timeout=10)
     print("Connected to Sensor Board")
     while True:
-        reading = sensor_board.readline().decode("utf-8").split(",")
-        global sensors
-        sensors = {'right': int(reading[0]), 'front': int(reading[1]), 'left': int(reading[2]), 'rear': int(reading[3])}
+        try:
+            reading = sensor_board.readline().decode("utf-8")
+            json_dict = json.loads(reading)
+            global sensors
+            sensors = json_dict['sensors']
+        except UnicodeDecodeError:
+            print("Bad data from serial")
+        except ValueError:
+            print("JSON parsing error")
 
 def control_loop():
     drive_board = serial.Serial("/dev/ttyUSB0", 115200, timeout=10)
@@ -36,15 +43,15 @@ def control_loop():
     
     print("Starting to drive")
     while True:
-        if sensor_check("front", 30) or sensor_check("left", 20) or sensor_check("right", 20):
+        if sensor_check(0, 30) or sensor_check(1, 20) or sensor_check(9, 20):
             # Too close to something
-            if sensors["left"] == 0:
+            if sensors[9] == 0:
                 # Left is wide open
                 command(drive_board, "d,left,190")
-            elif sensors["right"] == 0:
+            elif sensors[1]['val'] == 0:
                 # Right is wide open
                 command(drive_board, "d,right,190")
-            elif sensors["left"] > sensors["right"]:
+            elif sensors[9]['val'] > sensors[1]['val']:
                 # Left has more room than right
                 command(drive_board, "d,left,190")
             else:
