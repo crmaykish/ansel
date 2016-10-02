@@ -1,4 +1,5 @@
 CREATE TABLE sensors (
+    run int,
     time TEXT,
     sensor INT,
     value INT

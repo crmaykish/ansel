@@ -1,15 +1,11 @@
 # Ansel Sensor Board - Colin Maykish - September 2016
 import serial
 import time
-import sqlite3
 import json
+import dao
 from threading import Thread
 
 sensors = None
-
-# Set up SQLite database
-conn = sqlite3.connect("db/ansel.db")
-c = conn.cursor()
 
 # Send a command to a serial device
 def command(board, command):
@@ -20,21 +16,30 @@ def sensor_check(direction, distance):
     return sensors[direction]['val'] < distance and sensors[direction]['val'] != 0
 
 def sensor_loop():
-    sensor_board = serial.Serial("/dev/ttyUSB1", 9600, timeout=10)
+    sensor_board = serial.Serial("/dev/ttyUSB0", 9600, timeout=10)
     print("Connected to Sensor Board")
+
+    dao.dao_init()
+
+    print("Starting run: " + str(dao.run))
+
     while True:
         try:
             reading = sensor_board.readline().decode("utf-8")
             json_dict = json.loads(reading)
             global sensors
             sensors = json_dict['sensors']
+
+            for i in range(10):
+              dao.save_sensor(sensors[i])
+
         except UnicodeDecodeError:
             print("Bad data from serial")
         except ValueError:
             print("JSON parsing error")
 
 def control_loop():
-    drive_board = serial.Serial("/dev/ttyUSB0", 115200, timeout=10)
+    drive_board = serial.Serial("/dev/ttyUSB1", 115200, timeout=10)
     print("Connected to Drive Board")
     
     # Don't start driving until the sensor readings are coming in
