@@ -19,10 +19,6 @@ def sensor_loop():
     sensor_board = serial.Serial("/dev/ttyUSB0", 9600, timeout=10)
     print("Connected to Sensor Board")
 
-    dao.dao_init()
-
-    print("Starting run: " + str(dao.run))
-
     while True:
         try:
             reading = sensor_board.readline().decode("utf-8")
@@ -34,7 +30,7 @@ def sensor_loop():
               dao.save_sensor(sensors[i])
 
         except UnicodeDecodeError:
-            print("Bad data from serial")
+            print("Incomplete serial data")
         except ValueError:
             print("JSON parsing error")
 
@@ -53,23 +49,37 @@ def control_loop():
             if sensors[9] == 0:
                 # Left is wide open
                 command(drive_board, "d,left,190")
+                dao.save_motor(0, -190)
+                dao.save_motor(1, 190)
             elif sensors[1]['val'] == 0:
                 # Right is wide open
                 command(drive_board, "d,right,190")
+                dao.save_motor(0, 190)
+                dao.save_motor(1, -190)
             elif sensors[9]['val'] > sensors[1]['val']:
                 # Left has more room than right
                 command(drive_board, "d,left,190")
+                dao.save_motor(0, -190)
+                dao.save_motor(1, 190)
             else:
                 # Right has more room then left (or they're the same)
                 command(drive_board, "d,right,190")
+                dao.save_motor(0, 190)
+                dao.save_motor(1, -190)
 
                 # TODO: room for improvement here
         else:
             # Nothing blocking, move forward
             command(drive_board, "d,forward,255")
+            dao.save_motor(0, 255)
+            dao.save_motor(1, 255)
 
         # 25 updates per second
         time.sleep(0.04)
+
+# Start up DB
+dao.dao_init()
+print("Starting run: " + str(dao.run))
 
 # Start the sensor board thread
 sensor_thread = Thread(target=sensor_loop)

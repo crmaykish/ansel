@@ -16,3 +16,10 @@ def save_sensor(sensor):
     c.execute("INSERT INTO sensors VALUES (?, datetime('now'), ?, ?)", (run, sensor['pos'], sensor['val']))
     conn.commit()
     conn.close()
+
+def save_motor(motor, speed):
+    conn = sqlite3.connect("/home/colin/ansel-bot/db/ansel.db")
+    c = conn.cursor()
+    c.execute("INSERT INTO motors VALUES (datetime('now'), ?, ?)", (motor, speed))
+    conn.commit()
+    conn.close()
