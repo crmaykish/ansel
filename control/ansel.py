@@ -21,10 +21,10 @@ class Ansel:
         print(self.db.run)
 
         # Connect to motor board
-        self.motor = motor_board.MotorBoard("/dev/ttyUSB1", 115200, timeout=10)
+        self.motor = motor_board.MotorBoard("/dev/ttyUSB0", 115200, timeout=10)
 
         # Connect to sensor board
-        self.sensor = sensor_board.SensorBoard("/dev/ttyUSB0", 9600, timeout=10)
+        self.sensor = sensor_board.SensorBoard("/dev/ttyUSB1", 9600, timeout=10)
 
         # Start the sensor board thread
         self.sensor_thread = Thread(target=self.sensor_loop)
