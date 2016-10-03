@@ -7,16 +7,16 @@ class SensorBoard:
     last_sensors = None
 
     sensor_mapping = {
-        "front" : 0,
-        "front right" : 1,
-        "right front" : 2,
-        "right rear" : 3,
-        "rear right" : 4,
-        "rear" : 5,
-        "rear left" : 6,
-        "left rear" : 7,
-        "left front" : 8,
-        "front left" : 9
+        "front" : 5,
+        "front right" : 6,
+        "right front" : 7,
+        "right rear" : 8,
+        "rear right" : 9,
+        "rear" : 0,
+        "rear left" : 1,
+        "left rear" : 2,
+        "left front" : 3,
+        "front left" : 4
     }
 
     def __init__(self, port, baud, timeout):
