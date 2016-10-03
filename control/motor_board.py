@@ -17,7 +17,7 @@ class MotorBoard:
 
     def set_movement(self, direction, speed):
         if (speed >= 0 and speed <= 255):
-            self._command("d," + direction + "," + speed)
+            self._command("d," + direction + "," + str(speed))
 
     def stop_movement(self):
         self._command("stop,")

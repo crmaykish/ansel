@@ -39,7 +39,7 @@ class SensorBoard:
     def sensor_value(self, sensor):
         return self.sensors[self.sensor_mapping[sensor]]['val']
 
-    def distance_check(direction, distance):
+    def distance_check(self, direction, distance):
         """Return true if the sensor is reading closer than the given distance"""
         return self.sensor_value(direction) < distance and self.sensor_value(direction) != 0
 

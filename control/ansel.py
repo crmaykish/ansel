@@ -57,7 +57,7 @@ class Ansel:
         if (self.sensor.distance_check("front", self.DISTANCE_LIMIT) or self.sensor.distance_check("front left", self.DISTANCE_LIMIT) or self.sensor.distance_check("front right", self.DISTANCE_LIMIT)):
             self.motor.stop_movement()
 
-            if (self.sensor.sensor_value("front left") > self.sensor.sensor_value):
+            if (self.sensor.sensor_value("front left") > self.sensor.sensor_value("front right")):
                 self.motor.set_movement("left", 190)
             else:
                 self.motor.set_movement("right", 190)
