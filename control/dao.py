@@ -45,7 +45,7 @@ class DAO:
         c.executemany("INSERT INTO sensors VALUES (?, datetime('now'), ?, ?)", d)
         self.connection.commit()
 
-    def save_motor(self, motor, speed):
+    def save_motor(self, direction, speed):
         c = self.connection.cursor()
         c.execute("INSERT INTO motors VALUES (datetime('now'), ?, ?)", (motor, speed))
         self.connection.commit()

@@ -48,15 +48,21 @@ class Ansel:
 
             # Only update the DB when the sensor values change
             if (self.sensor.sensors != self.sensor.last_sensors):
-                print("New sensor values: save to DB.")
                 self.db.save_sensors(self.sensor.sensors)
                 self.sensor.last_sensors = self.sensor.sensors.copy()
 
             time.sleep(self.motor.sleep_time())
 
     def update_movement(self):
-        # TODO: reimplement movement algorithm
-        print("Moving...")
+        if (self.sensor.distance_check("front", self.DISTANCE_LIMIT) or self.sensor.distance_check("front left", self.DISTANCE_LIMIT) or self.sensor.distance_check("front right", self.DISTANCE_LIMIT)):
+            self.motor.stop_movement()
+
+            if (self.sensor.sensor_value("front left") > self.sensor.sensor_value):
+                self.motor.set_movement("left", 190)
+            else:
+                self.motor.set_movement("right", 190)
+        else:
+            self.motor.set_movement("forward", 255)
 
     def stop(self):
         self.running = False
