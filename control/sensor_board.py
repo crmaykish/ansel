@@ -1,5 +1,4 @@
 import serial
-import json
 
 class SensorBoard:
     ser = None
@@ -24,20 +23,24 @@ class SensorBoard:
         print("Connected to Sensor Board.")
 
     def sensors_ready(self):
-        return self.sensors is not None
+        return self.sensors is not None and len(self.sensors) == 10
 
     def read_sensors(self):
         try:
             reading = self.ser.readline().decode("utf-8")
-            json_dict = json.loads(reading)
-            self.sensors = json_dict['sensors']
+            kv = reading.split(":")
+
+            if self.sensors is None:
+                self.sensors = {}
+
+            self.sensors[int(kv[0])] = int(kv[1])
         except UnicodeDecodeError:
             print("Serial data is not valid unicode, likely an incomplete byte stream.")
-        except ValueError:
-            print("Error parsing JSON data.")
+        except IndexError:
+            print("Not a valid key/value pair, probably just caught it mid stream")
 
     def sensor_value(self, sensor):
-        return self.sensors[self.sensor_mapping[sensor]]['val']
+        return self.sensors[self.sensor_mapping[sensor]]
 
     def distance_check(self, direction, distance):
         """Return true if the sensor is reading closer than the given distance"""

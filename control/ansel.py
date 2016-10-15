@@ -47,9 +47,9 @@ class Ansel:
             self.update_movement()
 
             # Only update the DB when the sensor values change
-            if (self.sensor.sensors != self.sensor.last_sensors):
-                self.db.save_sensors(self.sensor.sensors)
-                self.sensor.last_sensors = self.sensor.sensors.copy()
+            # if (self.sensor.sensors != self.sensor.last_sensors):
+            #     self.db.save_sensors(self.sensor.sensors)
+            #     self.sensor.last_sensors = self.sensor.sensors.copy()
 
             time.sleep(self.motor.sleep_time())
 
