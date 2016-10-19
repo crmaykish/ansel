@@ -1,4 +1,4 @@
-import peripheral, control_loop, time
+import peripheral, control_loop, time, json
 
 class Ultrasonic(peripheral.Peripheral, control_loop.ControlLoop):
     sensors = None
@@ -46,6 +46,9 @@ class Ultrasonic(peripheral.Peripheral, control_loop.ControlLoop):
     def distance_check(self, direction, distance):
         """Return true if the sensor is reading closer than the given distance"""
         return self.sensor_value(direction) < distance and self.sensor_value(direction) != 0
+
+    def jsonify(self):
+        return json.dumps(self.sensors)
 
     def iterate(self):
         self.read_sensors()
