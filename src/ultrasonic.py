@@ -1,7 +1,6 @@
-import serial
+import peripheral, control_loop, time
 
-class SensorBoard:
-    ser = None
+class Ultrasonic(peripheral.Peripheral, control_loop.ControlLoop):
     sensors = None
     last_sensors = None
 
@@ -19,8 +18,8 @@ class SensorBoard:
     }
 
     def __init__(self, port, baud, timeout):
-        self.ser = serial.Serial(port, baud, timeout=timeout)
-        print("Connected to Sensor Board.")
+        super().__init__(port, baud, timeout)
+        print("Connected to Sensor Board")
 
     def sensors_ready(self):
         return self.sensors is not None and len(self.sensors) == 10
@@ -37,7 +36,9 @@ class SensorBoard:
         except UnicodeDecodeError:
             print("Serial data is not valid unicode, likely an incomplete byte stream.")
         except IndexError:
-            print("Not a valid key/value pair, probably just caught it mid stream")
+            print("Not a valid key/value pair.")
+        except ValueError:
+            print("Value error, probably just bad serial data.")
 
     def sensor_value(self, sensor):
         return self.sensors[self.sensor_mapping[sensor]]
@@ -46,4 +47,5 @@ class SensorBoard:
         """Return true if the sensor is reading closer than the given distance"""
         return self.sensor_value(direction) < distance and self.sensor_value(direction) != 0
 
-    
+    def iterate(self):
+        self.read_sensors()
