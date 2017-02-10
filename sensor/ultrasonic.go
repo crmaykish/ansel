@@ -1,7 +1,6 @@
 package sensor
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -9,6 +8,8 @@ import (
 	"bufio"
 
 	"errors"
+
+	"fmt"
 
 	"github.com/tarm/serial"
 )
@@ -20,6 +21,7 @@ var reader *bufio.Reader
 var Data map[int]int
 
 func Connect() {
+	fmt.Println("Connecting to Sensor...")
 	c := &serial.Config{Name: "/dev/ttyUSB1", Baud: 9600}
 	var err error
 	port, err = serial.OpenPort(c)
@@ -28,14 +30,33 @@ func Connect() {
 		log.Fatal(err)
 	} else {
 		reader = bufio.NewReader(port)
+		Data = make(map[int]int)
 		connected = true
 	}
 }
 
 func Disconnect() {
+	fmt.Println("Disconnecting from Sensor...")
 	port.Flush()
 	port.Close()
 	connected = false
+}
+
+func Loop(count int) {
+	for i := 0; i < count; i++ {
+		line, err := readLine()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		k, v, err := parseSerial(line)
+
+		if err == nil {
+			Data[k] = v
+		}
+		fmt.Printf("%d : %d", k, Data[k])
+	}
 }
 
 func readLine() (line string, err error) {
@@ -46,18 +67,18 @@ func readLine() (line string, err error) {
 	return reader.ReadString('\n')
 }
 
-func parseSerial(line string) (key, value int) {
+func parseSerial(line string) (key int, value int, err error) {
 	p := strings.Split(strings.TrimSpace(line), ":")
 
 	k, err := strconv.Atoi(p[0])
 	if err != nil {
-		fmt.Printf("Error parsing key: %v\n", k)
+		return 0, 0, err
 	}
 
 	v, err := strconv.Atoi(p[1])
 	if err != nil {
-		fmt.Printf("Error parsing value: %v\n", v)
+		return 0, 0, err
 	}
 
-	return k, v
+	return k, v, nil
 }

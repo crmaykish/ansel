@@ -7,6 +7,7 @@ func main() {
 	fmt.Printf("Starting Ansel control program...\n")
 
 	defer sensor.Disconnect()
-
 	sensor.Connect()
+
+	sensor.Loop()
 }
