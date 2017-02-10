@@ -2,12 +2,19 @@ package main
 
 import "fmt"
 import "github.com/crmaykish/ansel/sensor"
+import "time"
 
 func main() {
 	fmt.Printf("Starting Ansel control program...\n")
 
-	defer sensor.Disconnect()
 	sensor.Connect()
+	defer sensor.Disconnect()
 
-	sensor.Loop()
+	// Ultrasonic sensor loop
+	go sensor.Loop()
+
+	for {
+		fmt.Println("Main loop forever...")
+		time.Sleep(time.Second * 5)
+	}
 }

@@ -42,8 +42,8 @@ func Disconnect() {
 	connected = false
 }
 
-func Loop(count int) {
-	for i := 0; i < count; i++ {
+func Loop() {
+	for {
 		line, err := readLine()
 
 		if err != nil {
@@ -54,8 +54,8 @@ func Loop(count int) {
 
 		if err == nil {
 			Data[k] = v
+			fmt.Printf("%d : %d\n", k, Data[k])
 		}
-		fmt.Printf("%d : %d", k, Data[k])
 	}
 }
 
@@ -68,6 +68,9 @@ func readLine() (line string, err error) {
 }
 
 func parseSerial(line string) (key int, value int, err error) {
+	if !strings.Contains(line, ":") {
+		return 0, 0, errors.New("Bad serial data")
+	}
 	p := strings.Split(strings.TrimSpace(line), ":")
 
 	k, err := strconv.Atoi(p[0])
