@@ -9,6 +9,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"strconv"
+
 	"github.com/crmaykish/ansel/motor"
 	"github.com/crmaykish/ansel/sensor"
 )
@@ -30,11 +32,30 @@ func autonomous() {
 	motor.Connect()
 
 	for {
-		fmt.Println("Motor loop")
-		motor.SetMovement("left", 255)
-		time.Sleep(time.Second * 1)
-		motor.SetMovement("right", 255)
-		time.Sleep(time.Second * 1)
+		f := sensor.Data[sensor.Front]
+		l := sensor.Data[sensor.FrontLeft]
+		r := sensor.Data[sensor.FrontRight]
+
+		// TODO: add checks for left and right too
+
+		if f <= sensor.SafeDistance && sensor.SafeDistance >= 0 {
+			fmt.Println("Front is TOO CLOSE, L: " + strconv.Itoa(l) + ", R: " + strconv.Itoa(r))
+
+			var dir string
+			if l > r || l < 0 {
+				dir = "left"
+			} else {
+				dir = "right"
+			}
+
+			motor.SetMovement(dir, 255)
+		} else {
+			fmt.Println("Front is a safe distance")
+			motor.SetMovement("forward", 255)
+		}
+
+		// TODO: this should be a timer with an elapsed time check, not just a fixed delay
+		time.Sleep(motor.UpdateDelay)
 	}
 }
 

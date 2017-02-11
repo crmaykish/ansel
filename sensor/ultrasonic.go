@@ -25,11 +25,13 @@ const LeftRear = 2
 const LeftFront = 3
 const FrontLeft = 4
 
+const SafeDistance = 30
+
+var Data map[int]int
+
 var connected = false
 var port *serial.Port
 var reader *bufio.Reader
-
-var Data map[int]int
 
 func Connect() {
 	fmt.Println("Connecting to Sensor...")
