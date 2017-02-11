@@ -8,6 +8,9 @@ import (
 
 	"log"
 
+	"os/signal"
+	"syscall"
+
 	"github.com/crmaykish/ansel/motor"
 	"github.com/crmaykish/ansel/sensor"
 )
@@ -37,7 +40,25 @@ func autonomous() {
 	}
 }
 
+func stop() {
+	if !motor.Connected {
+		motor.Connect()
+	}
+	motor.StopMovement()
+	motor.Disconnect()
+}
+
 func main() {
+	// Watch for an OS interupt and trigger a cleanup
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		stop()
+		os.Exit(1)
+	}()
+
+	// Read command line arguments to determine starting mode
 	args := os.Args[1:]
 
 	if len(args) > 0 {

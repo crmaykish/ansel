@@ -17,11 +17,11 @@ const UpdateRate = 20
 const UpdateDelay = time.Second / UpdateRate
 
 var port *serial.Port
-var connected = false
+var Connected = false
 
 // Connect to the serial port
 func Connect() {
-	fmt.Println("Connecting to Motors...")
+	fmt.Println("Connecting to Motor Board...")
 	c := &serial.Config{Name: "/dev/ttyUSB0", Baud: 115200}
 	var err error
 	port, err = serial.OpenPort(c)
@@ -29,16 +29,16 @@ func Connect() {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		connected = true
+		Connected = true
 	}
 }
 
 // Disconnect closes the serial port
 func Disconnect() {
-	fmt.Println("Disconnecting from Sensor...")
+	fmt.Println("Disconnecting from Motor Board...")
 	port.Flush()
 	port.Close()
-	connected = false
+	Connected = false
 }
 
 func sendSerial(message string) {
@@ -50,5 +50,6 @@ func SetMovement(direction string, speed int) {
 }
 
 func StopMovement() {
+	fmt.Println("Stopping movement")
 	sendSerial("stop,")
 }
