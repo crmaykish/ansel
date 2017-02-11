@@ -5,11 +5,16 @@ import (
 	"log"
 	"strconv"
 
+	"time"
+
 	"github.com/tarm/serial"
 )
 
 // UpdateRate specifies the rate (in Hertz) to send motor board messages
 const UpdateRate = 20
+
+// UpdateDelay is the time between motor loop iterations
+const UpdateDelay = time.Second / UpdateRate
 
 var port *serial.Port
 var connected = false

@@ -14,6 +14,17 @@ import (
 	"github.com/tarm/serial"
 )
 
+const Front = 5
+const FrontRight = 6
+const RightFront = 7
+const RightRear = 8
+const RearRight = 9
+const Rear = 0
+const RearLeft = 1
+const LeftRear = 2
+const LeftFront = 3
+const FrontLeft = 4
+
 var connected = false
 var port *serial.Port
 var reader *bufio.Reader
@@ -54,7 +65,6 @@ func Loop() {
 
 		if err == nil {
 			Data[k] = v
-			fmt.Printf("%d : %d\n", k, Data[k])
 		}
 	}
 }
@@ -84,4 +94,15 @@ func parseSerial(line string) (key int, value int, err error) {
 	}
 
 	return k, v, nil
+}
+
+func PrintData() {
+	var d string
+	for i := 0; i < 10; i++ {
+		d += strconv.Itoa(Data[i])
+		if i != 9 {
+			d += " | "
+		}
+	}
+	fmt.Println(d)
 }
