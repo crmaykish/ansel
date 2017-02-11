@@ -6,8 +6,6 @@ import (
 
 	"os"
 
-	"log"
-
 	"os/signal"
 	"syscall"
 
@@ -62,10 +60,15 @@ func main() {
 	args := os.Args[1:]
 
 	if len(args) > 0 {
-		if args[0] == "i" {
+		switch args[0] {
+		case "i":
 			interactive()
-		} else {
-			log.Fatal("Unrecognized argument: " + args[0])
+		case "s":
+			stop()
+		case "?":
+			fmt.Printf("i : Interactive mode\n" + "s : Stop motors\n" + "? : This help screen\n")
+		default:
+			fmt.Printf("Unrecognized argument: " + args[0] + "\nRun ./ansel ? to see options\n")
 		}
 	} else {
 		autonomous()
