@@ -24,6 +24,7 @@ function c_y(height) {
     return (CANVAS_HEIGHT - height) / 2;
 }
 
+// Convert an angle in degrees to radians
 function toRad(degrees) {
     return degrees * (Math.PI / 180);
 }

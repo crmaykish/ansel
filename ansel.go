@@ -14,9 +14,8 @@ import (
 	"github.com/crmaykish/ansel/server"
 )
 
-func motors() {
-	motor.Connect()
-
+// Really basic obstacle avoid algorithm
+func control() {
 	for {
 		f := sensor.Data(sensor.Front)
 		l := sensor.Data(sensor.FrontLeft)
@@ -32,7 +31,7 @@ func motors() {
 
 			fmt.Println("Turning " + dir)
 
-			motor.SetMovement(dir, 255)
+			motor.SetMovement(dir, 190)
 		} else {
 			fmt.Println("Forward")
 			motor.SetMovement("forward", 255)
@@ -69,8 +68,11 @@ func main() {
 	sensor.Connect()
 	go sensor.Loop()
 
-	// Start the motor control loop thread
-	// go motors()
+	// Connect to motors
+	motor.Connect()
+
+	// Start control loop thread
+	go control()
 
 	// Start the webserver on the main thread
 	server.Start()
