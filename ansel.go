@@ -30,9 +30,9 @@ func autonomous() {
 	motor.Connect()
 
 	for {
-		f := sensor.Data[sensor.Front]
-		l := sensor.Data[sensor.FrontLeft]
-		r := sensor.Data[sensor.FrontRight]
+		f := sensor.Data(sensor.Front)
+		l := sensor.Data(sensor.FrontLeft)
+		r := sensor.Data(sensor.FrontRight)
 
 		if f <= sensor.SafeDistance && sensor.SafeDistance >= 0 || l <= sensor.SafeDistance && sensor.SafeDistance >= 0 || r <= sensor.SafeDistance && sensor.SafeDistance >= 0 {
 			var dir string
