@@ -1,0 +1,14 @@
+body {
+    background-color: #232323;
+    color: #CFCFCF;
+}
+
+#map {
+    border: 1px solid black;
+    float: left;
+}
+
+#log {
+    float: left;
+    padding-left: 8px;
+}

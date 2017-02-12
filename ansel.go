@@ -13,22 +13,13 @@ import (
 	"github.com/crmaykish/ansel/sensor"
 
 	"log"
-	"strconv"
 
 	"net/http"
 
 	"github.com/googollee/go-socket.io"
 )
 
-func loop() {
-	fmt.Println("Starting Ansel in AUTONOMOUS mode...")
-
-	sensor.Connect()
-	defer sensor.Disconnect()
-
-	// Ultrasonic sensor loop
-	go sensor.Loop()
-
+func motors() {
 	motor.Connect()
 
 	for {
@@ -63,8 +54,13 @@ func stop() {
 	}
 	motor.StopMovement()
 	motor.Disconnect()
+
+	if sensor.Connected {
+		sensor.Disconnect()
+	}
 }
 
+// TODO: abstract the server out and let other systems emit events instead of the server "polling" for them
 func server() {
 	server, err := socketio.NewServer(nil)
 	if err != nil {
@@ -74,9 +70,8 @@ func server() {
 	server.On("connection", func(so socketio.Socket) {
 		fmt.Println("connected")
 
-		for i := 0; i < 10000; i++ {
-			so.Emit("sensor", strconv.Itoa(i), func(so socketio.Socket, data string) {
-				fmt.Printf("ack for: " + strconv.Itoa(i))
+		for {
+			so.Emit("sensor", sensor.Json(), func(so socketio.Socket, data string) {
 			})
 			time.Sleep(time.Millisecond * 200)
 		}
@@ -99,9 +94,15 @@ func main() {
 		os.Exit(1)
 	}()
 
-	// Start the webserver
-	go server()
+	// Start the webserver thread
+	// go server()
 
-	// Start the main control loop
-	loop()
+	// Start the sensor thread
+	sensor.Connect()
+	go sensor.Loop()
+
+	// Start the motor control loop thread
+	// motors()
+	for {
+	}
 }

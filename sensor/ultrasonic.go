@@ -13,6 +13,8 @@ import (
 
 	"sync"
 
+	"encoding/json"
+
 	"github.com/tarm/serial"
 )
 
@@ -32,7 +34,7 @@ const SafeDistance = 30
 var dataMutex sync.Mutex
 var data map[int]int
 
-var connected = false
+var Connected = false
 var port *serial.Port
 var reader *bufio.Reader
 
@@ -60,7 +62,7 @@ func Connect() {
 	} else {
 		reader = bufio.NewReader(port)
 		data = make(map[int]int)
-		connected = true
+		Connected = true
 	}
 }
 
@@ -68,7 +70,7 @@ func Disconnect() {
 	fmt.Println("Disconnecting from Sensor...")
 	port.Flush()
 	port.Close()
-	connected = false
+	Connected = false
 }
 
 func Loop() {
@@ -88,7 +90,7 @@ func Loop() {
 }
 
 func readLine() (line string, err error) {
-	if !connected {
+	if !Connected {
 		return "", errors.New("Serial not connected")
 	}
 
@@ -114,13 +116,23 @@ func parseSerial(line string) (key int, value int, err error) {
 	return k, v, nil
 }
 
-func PrintData() {
-	var d string
+func Json() string {
+	dataMutex.Lock()
+
+	s := make(map[string]string)
+
 	for i := 0; i < 10; i++ {
-		d += strconv.Itoa(Data(i))
-		if i != 9 {
-			d += " | "
-		}
+		k := strconv.Itoa(i)
+		v := strconv.Itoa(data[i])
+		s[k] = v
 	}
-	fmt.Println(d)
+
+	dataMutex.Unlock()
+
+	b, err := json.Marshal(s)
+	if err != nil {
+		return ""
+	}
+
+	return string(b)
 }
