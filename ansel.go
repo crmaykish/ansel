@@ -14,14 +14,30 @@ import (
 	"github.com/crmaykish/ansel/server"
 )
 
+func tooClose(value int) bool {
+	return value <= sensor.SafeDistance && value >= 0
+}
+
 // Really basic obstacle avoid algorithm
 func control() {
 	for {
 		f := sensor.Data(sensor.Front)
 		l := sensor.Data(sensor.FrontLeft)
 		r := sensor.Data(sensor.FrontRight)
+		b := sensor.Data(sensor.Rear)
 
-		if f <= sensor.SafeDistance && sensor.SafeDistance >= 0 || l <= sensor.SafeDistance && sensor.SafeDistance >= 0 || r <= sensor.SafeDistance && sensor.SafeDistance >= 0 {
+		if tooClose(f) && tooClose(l) && tooClose(r) {
+			if tooClose(b) {
+				// Nowhere to go, stopping
+				motor.StopMovement()
+			} else {
+				// All front sensors are blocked, but back is clear, drive in reverse
+				fmt.Println("Backing up")
+				motor.SetMovement("reverse", motor.DriveSpeed)
+			}
+		} else if tooClose(f) || tooClose(l) || tooClose(r) {
+			// At least one of the front sensors is too close
+			// Determine if left or right is more open and turn that direction
 			var dir string
 			if l > r || l < 0 {
 				dir = "left"
@@ -30,11 +46,11 @@ func control() {
 			}
 
 			fmt.Println("Turning " + dir)
-
-			motor.SetMovement(dir, 190)
+			motor.SetMovement(dir, motor.TurnSpeed)
 		} else {
+			// Everything looks clear, drive forward
 			fmt.Println("Forward")
-			motor.SetMovement("forward", 255)
+			motor.SetMovement("forward", motor.DriveSpeed)
 		}
 
 		// TODO: this should be a timer with an elapsed time check, not just a fixed delay
