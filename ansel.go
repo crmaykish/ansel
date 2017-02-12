@@ -11,22 +11,15 @@ import (
 
 	"github.com/crmaykish/ansel/motor"
 	"github.com/crmaykish/ansel/sensor"
+
+	"log"
+
+	"net/http"
+
+	"github.com/googollee/go-socket.io"
 )
 
-func interactive() {
-	fmt.Println("Starting Ansel in INTERACTIVE mode...")
-	// TODO: Interactive driving loop
-}
-
-func autonomous() {
-	fmt.Println("Starting Ansel in AUTONOMOUS mode...")
-
-	sensor.Connect()
-	defer sensor.Disconnect()
-
-	// Ultrasonic sensor loop
-	go sensor.Loop()
-
+func motors() {
 	motor.Connect()
 
 	for {
@@ -61,6 +54,34 @@ func stop() {
 	}
 	motor.StopMovement()
 	motor.Disconnect()
+
+	if sensor.Connected {
+		sensor.Disconnect()
+	}
+}
+
+// TODO: abstract the server out and let other systems emit events instead of the server "polling" for them
+func server() {
+	server, err := socketio.NewServer(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	server.On("connection", func(so socketio.Socket) {
+		fmt.Println("connected")
+
+		for {
+			so.Emit("sensor", sensor.Json(), func(so socketio.Socket, data string) {
+			})
+			time.Sleep(time.Millisecond * 200)
+		}
+
+	})
+
+	http.Handle("/socket.io/", server)
+	http.Handle("/", http.FileServer(http.Dir("./assets")))
+	fmt.Println("Starting web server")
+	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
 func main() {
@@ -73,21 +94,15 @@ func main() {
 		os.Exit(1)
 	}()
 
-	// Read command line arguments to determine starting mode
-	args := os.Args[1:]
+	// Start the webserver thread
+	// go server()
 
-	if len(args) > 0 {
-		switch args[0] {
-		case "i":
-			interactive()
-		case "s":
-			stop()
-		case "?":
-			fmt.Printf("i : Interactive mode\n" + "s : Stop motors\n" + "? : This help screen\n")
-		default:
-			fmt.Printf("Unrecognized argument: " + args[0] + "\nRun ./ansel ? to see options\n")
-		}
-	} else {
-		autonomous()
+	// Start the sensor thread
+	sensor.Connect()
+	go sensor.Loop()
+
+	// Start the motor control loop thread
+	// motors()
+	for {
 	}
 }
