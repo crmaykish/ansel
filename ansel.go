@@ -11,12 +11,7 @@ import (
 
 	"github.com/crmaykish/ansel/motor"
 	"github.com/crmaykish/ansel/sensor"
-
-	"log"
-
-	"net/http"
-
-	"github.com/googollee/go-socket.io"
+	"github.com/crmaykish/ansel/server"
 )
 
 func motors() {
@@ -60,30 +55,6 @@ func stop() {
 	}
 }
 
-// TODO: abstract the server out and let other systems emit events instead of the server "polling" for them
-func server() {
-	server, err := socketio.NewServer(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	server.On("connection", func(so socketio.Socket) {
-		fmt.Println("connected")
-
-		for {
-			so.Emit("sensor", sensor.Json(), func(so socketio.Socket, data string) {
-			})
-			time.Sleep(time.Millisecond * 200)
-		}
-
-	})
-
-	http.Handle("/socket.io/", server)
-	http.Handle("/", http.FileServer(http.Dir("./assets")))
-	fmt.Println("Starting web server")
-	log.Fatal(http.ListenAndServe(":8000", nil))
-}
-
 func main() {
 	// Watch for an OS interupt and trigger a cleanup
 	c := make(chan os.Signal, 2)
@@ -94,15 +65,13 @@ func main() {
 		os.Exit(1)
 	}()
 
-	// Start the webserver thread
-	// go server()
-
 	// Start the sensor thread
 	sensor.Connect()
 	go sensor.Loop()
 
 	// Start the motor control loop thread
-	// motors()
-	for {
-	}
+	// go motors()
+
+	// Start the webserver on the main thread
+	server.Start()
 }

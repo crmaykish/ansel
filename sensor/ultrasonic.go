@@ -18,6 +18,8 @@ import (
 	"github.com/tarm/serial"
 )
 
+// TODO: wrap up sensors in a struct with easy naming and eror states
+
 const Front = 5
 const FrontRight = 6
 const RightFront = 7
