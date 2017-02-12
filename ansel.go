@@ -11,14 +11,16 @@ import (
 
 	"github.com/crmaykish/ansel/motor"
 	"github.com/crmaykish/ansel/sensor"
+
+	"log"
+	"strconv"
+
+	"net/http"
+
+	"github.com/googollee/go-socket.io"
 )
 
-func interactive() {
-	fmt.Println("Starting Ansel in INTERACTIVE mode...")
-	// TODO: Interactive driving loop
-}
-
-func autonomous() {
+func loop() {
 	fmt.Println("Starting Ansel in AUTONOMOUS mode...")
 
 	sensor.Connect()
@@ -63,6 +65,30 @@ func stop() {
 	motor.Disconnect()
 }
 
+func server() {
+	server, err := socketio.NewServer(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	server.On("connection", func(so socketio.Socket) {
+		fmt.Println("connected")
+
+		for i := 0; i < 10000; i++ {
+			so.Emit("sensor", strconv.Itoa(i), func(so socketio.Socket, data string) {
+				fmt.Printf("ack for: " + strconv.Itoa(i))
+			})
+			time.Sleep(time.Millisecond * 200)
+		}
+
+	})
+
+	http.Handle("/socket.io/", server)
+	http.Handle("/", http.FileServer(http.Dir("./assets")))
+	fmt.Println("Starting web server")
+	log.Fatal(http.ListenAndServe(":8000", nil))
+}
+
 func main() {
 	// Watch for an OS interupt and trigger a cleanup
 	c := make(chan os.Signal, 2)
@@ -73,21 +99,9 @@ func main() {
 		os.Exit(1)
 	}()
 
-	// Read command line arguments to determine starting mode
-	args := os.Args[1:]
+	// Start the webserver
+	go server()
 
-	if len(args) > 0 {
-		switch args[0] {
-		case "i":
-			interactive()
-		case "s":
-			stop()
-		case "?":
-			fmt.Printf("i : Interactive mode\n" + "s : Stop motors\n" + "? : This help screen\n")
-		default:
-			fmt.Printf("Unrecognized argument: " + args[0] + "\nRun ./ansel ? to see options\n")
-		}
-	} else {
-		autonomous()
-	}
+	// Start the main control loop
+	loop()
 }
