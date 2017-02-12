@@ -9,8 +9,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"strconv"
-
 	"github.com/crmaykish/ansel/motor"
 	"github.com/crmaykish/ansel/sensor"
 )
@@ -36,11 +34,7 @@ func autonomous() {
 		l := sensor.Data[sensor.FrontLeft]
 		r := sensor.Data[sensor.FrontRight]
 
-		// TODO: add checks for left and right too
-
-		if f <= sensor.SafeDistance && sensor.SafeDistance >= 0 {
-			fmt.Println("Front is TOO CLOSE, L: " + strconv.Itoa(l) + ", R: " + strconv.Itoa(r))
-
+		if f <= sensor.SafeDistance && sensor.SafeDistance >= 0 || l <= sensor.SafeDistance && sensor.SafeDistance >= 0 || r <= sensor.SafeDistance && sensor.SafeDistance >= 0 {
 			var dir string
 			if l > r || l < 0 {
 				dir = "left"
@@ -48,9 +42,11 @@ func autonomous() {
 				dir = "right"
 			}
 
+			fmt.Println("Turning " + dir)
+
 			motor.SetMovement(dir, 255)
 		} else {
-			fmt.Println("Front is a safe distance")
+			fmt.Println("Forward")
 			motor.SetMovement("forward", 255)
 		}
 
