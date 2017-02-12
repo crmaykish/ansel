@@ -16,8 +16,16 @@ const UpdateRate = 20
 // UpdateDelay is the time between motor loop iterations
 const UpdateDelay = time.Second / UpdateRate
 
-var port *serial.Port
+// DriveSpeed is the speed to move straight forward or backward
+const DriveSpeed = 255
+
+// TurnSpeed is the speed to turn in place
+const TurnSpeed = 190
+
+// Connected is the state of the serial port
 var Connected = false
+
+var port *serial.Port
 
 // Connect to the serial port
 func Connect() {
@@ -33,7 +41,7 @@ func Connect() {
 	}
 }
 
-// Disconnect closes the serial port
+// Disconnect from the serial port
 func Disconnect() {
 	fmt.Println("Disconnecting from Motor Board...")
 	port.Flush()
@@ -50,6 +58,5 @@ func SetMovement(direction string, speed int) {
 }
 
 func StopMovement() {
-	fmt.Println("Stopping movement")
 	sendSerial("stop,")
 }

@@ -11,8 +11,6 @@ import (
 	"github.com/googollee/go-socket.io"
 )
 
-var count = 0
-
 var Server *socketio.Server
 
 func Start() {
@@ -24,15 +22,12 @@ func Start() {
 
 	Server.On("connection", func(so socketio.Socket) {
 		fmt.Println("Client connected")
-		count++
 
+		// Emit sensor data every 200 milliseconds
 		for {
-			fmt.Println("broadcasting for ", count)
-			fmt.Println(sensor.Json())
 			so.Emit("sensor", sensor.Json(), nil)
 			time.Sleep(time.Millisecond * 200)
 		}
-
 	})
 
 	Server.On("error", func(so socketio.Socket, err error) {
